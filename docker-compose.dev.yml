@@ -1,0 +1,8 @@
+# Overlay for contributors building the image from this checkout:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  tillhome:
+    image: tillhome:local
+    build:
+      context: .
+      dockerfile: Dockerfile

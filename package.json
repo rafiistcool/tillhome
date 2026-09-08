@@ -1,9 +1,9 @@
 {
   "name": "tillhome",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
-  "description": "Static homepage portal for tillhome.de",
+  "description": "YAML-driven static personal/ops link hub",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

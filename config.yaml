@@ -1,12 +1,13 @@
-# tillhome.de portal — this is the only file you need to edit to add a link.
-# After changing it, run `npm run build` and deploy the `dist/` folder.
+# Personal / ops link hub. This is the only file you need to edit to add a link.
+# After changing it, run `npm run build`, or restart the container if you mount
+# this file at /config/config.yaml.
 
 site:
-  title: tillhome
-  heading: tillhome.de
-  name: Rafael Till
-  tagline: Personal services on this domain.
-  description: Home portal for Rafael Till’s tillhome.de subdomains and services.
+  title: Home
+  heading: home.example.com
+  name: Your name
+  tagline: Personal services and shortcuts.
+  description: Personal link hub for services on this host.
   footer: Static link hub. Add a site by editing config.yaml.
 
 # Optional. Controls section order. Groups not listed still appear after these.
@@ -19,7 +20,7 @@ groups:
 # Set example: true while an entry is a placeholder you still need to replace.
 links:
   - title: Book Club
-    url: https://bookclub.tillhome.de
+    url: https://books.example.com
     description: Club picks, notes, and the current reading list.
     icon: "📚"
     group: Reading
@@ -27,7 +28,7 @@ links:
     example: true
 
   - title: Notes
-    url: https://notes.tillhome.de
+    url: https://notes.example.com
     description: Personal wiki and evergreen notes.
     icon: "📝"
     group: Reading
@@ -35,15 +36,15 @@ links:
     example: true
 
   - title: Photos
-    url: https://photos.tillhome.de
+    url: https://photos.example.com
     description: Family albums and shared galleries.
     icon: "📷"
     group: Services
     tags: [media]
     example: true
 
-  - title: Glean
-    url: https://glean.tillhome.de
+  - title: Search
+    url: https://search.example.com
     description: Search across personal sources.
     icon: "🔍"
     group: Services
@@ -51,7 +52,7 @@ links:
     example: true
 
   - title: Git
-    url: https://git.tillhome.de
+    url: https://git.example.com
     description: Source repositories hosted on this domain.
     icon: "🔧"
     group: Ops
@@ -59,7 +60,7 @@ links:
     example: true
 
   - title: Status
-    url: https://status.tillhome.de
+    url: https://status.example.com
     description: Uptime and service health.
     icon: "📡"
     group: Ops

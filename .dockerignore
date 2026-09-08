@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+dist
+*.md
+.DS_Store
+.vscode
+.idea
+*.local
+Caddyfile.example
+docker-compose*.yml
+.env
+.env.*
