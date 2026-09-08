@@ -1,8 +1,10 @@
-# Example Caddy config for tillhome.de
-# Copy the built `dist/` folder to the root path, then include or adapt this file.
+# Example Caddy config for a static deploy of dist/.
+# Copy the built folder to the root path, then include or adapt this file.
+#
+# Live example: tillhome.de serves this project from /var/www/tillhome.
 
-tillhome.de {
-	root * /var/www/tillhome
+:80 {
+	root * /var/www/portal
 	encode gzip
 	file_server
 	header {

@@ -4,7 +4,7 @@ const UNGROUPED = 'Other'
 
 export function hostnameOf(url: string): string {
   try {
-    return new URL(url, 'https://tillhome.de').host
+    return new URL(url, 'https://example.com').host
   } catch {
     return url
   }

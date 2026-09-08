@@ -1,0 +1,27 @@
+# Example self-host compose. Copy this file and config.yaml next to each
+# other, edit the YAML, then:
+#   docker compose up -d
+# Update:
+#   docker compose pull && docker compose up -d
+#
+# The portal listens on :80 and is published on the host below. Put your
+# own reverse proxy (Caddy, nginx, Tailscale Serve) in front for HTTPS.
+# If the proxy runs on this host, bind to loopback:
+#   ports: ["127.0.0.1:8080:80"]
+#
+# Contributors building from source:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  tillhome:
+    # Images are published from v* git tags. `latest` is the newest release;
+    # pin a minor (`:0.1`) or an exact version (`:0.1.0`) if you prefer.
+    # See https://github.com/rafiistcool/tillhome/pkgs/container/tillhome
+    image: ghcr.io/rafiistcool/tillhome:latest
+    restart: unless-stopped
+    ports:
+      - "${TILLHOME_PORT:-8080}:80"
+    environment:
+      CONFIG_FILE: /config/config.yaml
+    volumes:
+      # Your portal. Restart the container after editing so Vite can rebuild.
+      - ${TILLHOME_CONFIG:-./config.yaml}:/config/config.yaml:ro

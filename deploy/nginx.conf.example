@@ -1,12 +1,13 @@
-# Example nginx server for tillhome.de
-# Point root at the built `dist/` directory.
+# Example nginx server for a static deploy of dist/.
+# Point root at the built directory. Replace server_name with your host
+# (tillhome.de is one live example of this project).
 
 server {
     listen 80;
     listen [::]:80;
-    server_name tillhome.de;
+    server_name home.example.com;
 
-    root /var/www/tillhome;
+    root /var/www/portal;
     index index.html;
 
     location / {
