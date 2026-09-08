@@ -1,0 +1,67 @@
+# tillhome.de portal — this is the only file you need to edit to add a link.
+# After changing it, run `npm run build` and deploy the `dist/` folder.
+
+site:
+  title: tillhome
+  heading: tillhome.de
+  name: Rafael Till
+  tagline: Personal services on this domain.
+  description: Home portal for Rafael Till’s tillhome.de subdomains and services.
+  footer: Static link hub. Add a site by editing config.yaml.
+
+# Optional. Controls section order. Groups not listed still appear after these.
+groups:
+  - Reading
+  - Services
+  - Ops
+
+# Each entry needs title + url. Everything else is optional.
+# Set example: true while an entry is a placeholder you still need to replace.
+links:
+  - title: Book Club
+    url: https://bookclub.tillhome.de
+    description: Club picks, notes, and the current reading list.
+    icon: "📚"
+    group: Reading
+    tags: [books]
+    example: true
+
+  - title: Notes
+    url: https://notes.tillhome.de
+    description: Personal wiki and evergreen notes.
+    icon: "📝"
+    group: Reading
+    tags: [wiki]
+    example: true
+
+  - title: Photos
+    url: https://photos.tillhome.de
+    description: Family albums and shared galleries.
+    icon: "📷"
+    group: Services
+    tags: [media]
+    example: true
+
+  - title: Glean
+    url: https://glean.tillhome.de
+    description: Search across personal sources.
+    icon: "🔍"
+    group: Services
+    tags: [search]
+    example: true
+
+  - title: Git
+    url: https://git.tillhome.de
+    description: Source repositories hosted on this domain.
+    icon: "🔧"
+    group: Ops
+    tags: [dev]
+    example: true
+
+  - title: Status
+    url: https://status.tillhome.de
+    description: Uptime and service health.
+    icon: "📡"
+    group: Ops
+    tags: [ops]
+    example: true

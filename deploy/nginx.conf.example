@@ -1,0 +1,18 @@
+# Example nginx server for tillhome.de
+# Point root at the built `dist/` directory.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name tillhome.de;
+
+    root /var/www/tillhome;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+}

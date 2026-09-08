@@ -1,0 +1,12 @@
+# Example Caddy config for tillhome.de
+# Copy the built `dist/` folder to the root path, then include or adapt this file.
+
+tillhome.de {
+	root * /var/www/tillhome
+	encode gzip
+	file_server
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+}
