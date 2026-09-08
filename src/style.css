@@ -264,6 +264,11 @@ input:focus-visible {
   border-color: var(--line-strong);
 }
 
+.card[hidden],
+.section[hidden] {
+  display: none;
+}
+
 .card-icon {
   flex: 0 0 auto;
   display: grid;
