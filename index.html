@@ -3,24 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0a1f" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <script>
-      (function () {
-        try {
-          var stored = localStorage.getItem('tillhome-theme')
-          var theme =
-            stored === 'light' || stored === 'dark'
-              ? stored
-              : window.matchMedia('(prefers-color-scheme: dark)').matches
-                ? 'dark'
-                : 'light'
-          document.documentElement.dataset.theme = theme
-        } catch (e) {}
-      })()
-    </script>
+    <link rel="preload" as="image" href="/background.jpg" />
   </head>
   <body>
+    <div class="backdrop" aria-hidden="true">
+      <div class="backdrop-image"></div>
+      <div class="backdrop-stars"></div>
+      <div class="backdrop-aurora"></div>
+      <div class="backdrop-vignette"></div>
+    </div>
     <div id="app"><!--portal--></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

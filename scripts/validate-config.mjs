@@ -8,6 +8,13 @@ if (!data?.site?.title) {
   throw new Error('site.title is required')
 }
 
+for (const key of ['eyebrow', 'heading', 'name', 'tagline', 'description', 'footer']) {
+  const value = data.site[key]
+  if (value !== undefined && typeof value !== 'string') {
+    throw new Error(`site.${key} must be a string`)
+  }
+}
+
 if (!Array.isArray(data.links)) {
   throw new Error('links must be a list')
 }

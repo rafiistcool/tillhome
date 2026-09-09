@@ -1,5 +1,6 @@
 export interface SiteMeta {
   title: string
+  eyebrow?: string
   heading?: string
   name?: string
   tagline?: string
