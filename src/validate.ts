@@ -54,6 +54,7 @@ export function validateConfig(data: unknown): SiteConfig {
   return {
     site: {
       title: site.title,
+      eyebrow: optionalString(site.eyebrow),
       heading: optionalString(site.heading),
       name: optionalString(site.name),
       tagline: optionalString(site.tagline),

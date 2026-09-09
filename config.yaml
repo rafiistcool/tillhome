@@ -4,6 +4,7 @@
 
 site:
   title: Home
+  eyebrow: Welcome to
   heading: home.example.com
   name: Your name
   tagline: Personal services and shortcuts.
@@ -17,12 +18,16 @@ groups:
   - Ops
 
 # Each entry needs title + url. Everything else is optional.
+# icon: a built-in line icon name (book-open, cloud, film, image, server, …
+#       see README), `brand:<slug>` for a service logo (brand:jellyfin,
+#       brand:nextcloud, brand:immich), or a path/URL to your own image.
+#       Omit it to get a monogram of the title.
 # Set example: true while an entry is a placeholder you still need to replace.
 links:
   - title: Book Club
     url: https://books.example.com
     description: Club picks, notes, and the current reading list.
-    icon: "📚"
+    icon: book-open
     group: Reading
     tags: [books]
     example: true
@@ -30,7 +35,7 @@ links:
   - title: Notes
     url: https://notes.example.com
     description: Personal wiki and evergreen notes.
-    icon: "📝"
+    icon: file-text
     group: Reading
     tags: [wiki]
     example: true
@@ -38,7 +43,7 @@ links:
   - title: Photos
     url: https://photos.example.com
     description: Family albums and shared galleries.
-    icon: "📷"
+    icon: brand:immich
     group: Services
     tags: [media]
     example: true
@@ -46,7 +51,7 @@ links:
   - title: Search
     url: https://search.example.com
     description: Search across personal sources.
-    icon: "🔍"
+    icon: brand:jellyfin
     group: Services
     tags: [search]
     example: true
@@ -54,7 +59,7 @@ links:
   - title: Git
     url: https://git.example.com
     description: Source repositories hosted on this domain.
-    icon: "🔧"
+    icon: git-branch
     group: Ops
     tags: [dev]
     example: true
@@ -62,7 +67,7 @@ links:
   - title: Status
     url: https://status.example.com
     description: Uptime and service health.
-    icon: "📡"
+    icon: activity
     group: Ops
     tags: [ops]
     example: true
