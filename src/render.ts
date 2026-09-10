@@ -11,6 +11,17 @@ const BRAND_ICON_BASE = 'https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons
 const IMAGE_EXT = /\.(svg|png|webp|jpe?g|gif|avif)(\?.*)?$/i
 
 /**
+ * Characters that can break out of `style="--icon-src:url(...)"`.
+ * Quotes, parens, backslashes, semicolons, and whitespace are refused;
+ * the card falls back to a monogram instead of painting a mask.
+ */
+const UNSAFE_ICON_SRC = /["'()\\;\s]/
+
+export function isStyleSafeIconSrc(src: string): boolean {
+  return src.length > 0 && !UNSAFE_ICON_SRC.test(src)
+}
+
+/**
  * If `icon` refers to an image, return its src. Accepts `brand:<slug>`,
  * absolute http(s) URLs, root-/dot-relative paths, and bare filenames
  * with an image extension.
@@ -25,9 +36,14 @@ function iconImageSrc(icon: string): string | undefined {
   return undefined
 }
 
+function monogramMarkup(title: string): string {
+  const monogram = [...title.trim()][0]?.toUpperCase() ?? '·'
+  return `<span class="card-icon" aria-hidden="true"><span class="card-icon-glyph card-icon-monogram">${escapeHtml(monogram)}</span></span>`
+}
+
 /**
  * Card icon, in order of preference:
- *  1. image (`brand:` slug, URL, or path)
+ *  1. image (`brand:` slug, URL, or path) as a CSS mask (monochrome)
  *  2. built-in line icon by name (see src/icons.ts)
  *  3. short literal text (e.g. a letter), otherwise
  *  4. monogram from the first letter of the title
@@ -37,7 +53,8 @@ function iconMarkup(icon: string | undefined, title: string): string {
   if (value) {
     const src = iconImageSrc(value)
     if (src) {
-      return `<span class="card-icon card-icon-image" aria-hidden="true"><img class="card-icon-img" src="${escapeAttr(src)}" alt="" loading="lazy" decoding="async"></span>`
+      if (!isStyleSafeIconSrc(src)) return monogramMarkup(title)
+      return `<span class="card-icon" aria-hidden="true"><span class="card-icon-mask" style="--icon-src:url(${escapeAttr(src)})"></span></span>`
     }
     const svg = builtinIcon(value)
     if (svg) return `<span class="card-icon" aria-hidden="true">${svg}</span>`
@@ -45,8 +62,7 @@ function iconMarkup(icon: string | undefined, title: string): string {
       return `<span class="card-icon" aria-hidden="true"><span class="card-icon-glyph">${escapeHtml(value)}</span></span>`
     }
   }
-  const monogram = [...title.trim()][0]?.toUpperCase() ?? '·'
-  return `<span class="card-icon" aria-hidden="true"><span class="card-icon-glyph card-icon-monogram">${escapeHtml(monogram)}</span></span>`
+  return monogramMarkup(title)
 }
 
 function tagsMarkup(link: SiteLink): string {

@@ -62,10 +62,12 @@ Required fields are `title` and `url`. Everything else is optional:
 `icon` accepts three kinds of value:
 
 - **Built-in line icon** (bundled, no network): `activity`, `bar-chart`, `book-open`, `box`, `calendar`, `camera`, `cloud`, `code`, `cpu`, `database`, `download`, `file-text`, `film`, `folder`, `gamepad`, `git-branch`, `globe`, `hard-drive`, `headphones`, `heart`, `home`, `image`, `key`, `layout-dashboard`, `link`, `lock`, `mail`, `message-circle`, `music`, `newspaper`, `play`, `rss`, `search`, `server`, `settings`, `shield`, `terminal`, `tv`, `users`, `wifi`, `wrench`, `zap`. Friendly aliases work too (`books`, `photos`, `notes`, `git`, `status`, `dashboard`, `movies`, `streaming`, `storage`, `chat`, …); see `src/icons.ts`.
-- **Service logo**: `brand:<slug>` loads the matching SVG from the community [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) set via jsDelivr, e.g. `brand:jellyfin`, `brand:nextcloud`, `brand:immich`, `brand:sonarr`. The slug is the file name in that repo. This is the one thing on the page that makes an external request; skip it if you want the site fully self-contained.
-- **Your own image**: a URL or a path such as `/icons/mine.svg` (drop the file in `public/icons/`). Bare filenames ending in `.svg`/`.png`/`.webp`/`.jpg` work as well.
+- **Service logo**: `brand:<slug>` loads the matching SVG from the community [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) set via jsDelivr, e.g. `brand:jellyfin`, `brand:nextcloud`, `brand:immich`, `brand:sonarr`. The slug is the file name in that repo. Logos are painted as a CSS mask in the card text colour (not as a full-colour image). This is the one thing on the page that makes an external request; skip it if you want the site fully self-contained.
+- **Your own image**: a URL or a path such as `/icons/mine.svg` (drop the file in `public/icons/`). Bare filenames ending in `.svg`/`.png`/`.webp`/`.jpg` work as well. Same monochrome mask treatment.
 
 Anything else that is one or two characters long (a letter, a symbol) is shown literally.
+
+Image `src` values that contain quotes, parentheses, backslashes, semicolons, or whitespace are rejected and the card shows a monogram instead. That keeps the mask `style` attribute from being a CSS injection surface.
 
 Optional `groups` at the top of the file sets section order. Groups that are not listed still appear after the named ones.
 
@@ -122,11 +124,18 @@ Upload `dist/`, or run `npm run build` in CI and publish that folder. This is a 
 
 ## Look
 
-The page is a dark landing page rendered over a full-screen photo with glass cards. To change the picture, replace `public/background.jpg` with your own image (landscape, ~1600px wide is plenty; it is served as-is). Colours live as CSS variables at the top of `src/style.css` if you want to re-tint the accents to match a new image.
+The night-forest illustration is a **header band**: it frames the hero and dissolves into a solid page colour so the cards sit on one predictable surface instead of a full-viewport wallpaper. Colours are sampled from `public/background.jpg` (sky, horizon, forest, lake, foreground bank); each CSS token in `src/style.css` comments which region it came from. Accents stay at those image values — no neon rims brighter than the painting.
+
+Icons are a single 20px monochrome treatment in the card text colour. Built-in glyphs are Lucide strokes; brand logos use a CSS mask.
+
+Type is **Inter Variable**, self-hosted from [`@fontsource-variable/inter`](https://fontsource.org/fonts/inter) and bundled into `dist/assets/` at build time. The browser caches the hashed `.woff2` with the rest of the static files — there is no Google Fonts (or other) runtime request. After `npm ci` / `npm run build`, a hard refresh is enough for the new face to land.
+
+To change the picture, replace `public/background.jpg` (landscape, ~1600px wide is plenty; it is served as-is) and re-tint the variables at the top of `src/style.css` to match.
 
 ## Layout
 
 - Links are grouped by `group` and rendered as cards; each card shows the link's hostname so you don't have to remember subdomains
+- The card grid uses `auto-fill` so a short group keeps the same card width as a full row
 - Absolute `http://` and `https://` URLs open in a new tab
 - Relative URLs stay in the same tab
 - Keyboard focus styles are visible, and every animation is disabled under `prefers-reduced-motion`
@@ -137,7 +146,7 @@ The page is a dark landing page rendered over a full-screen photo with glass car
 config.yaml                 ← edit this to add a link
 src/                        Render + validation code and the stylesheet
 src/icons.ts                Built-in line icons (Lucide paths) and aliases
-public/background.jpg       Hero/background image (swap to change the look)
+public/background.jpg       Header-band illustration (swap to change the look)
 vite.config.ts              Reads YAML at build time and injects HTML
 dist/                       Generated static site (after build)
 Dockerfile                  Multi-stage: Vite build, nginx + rebuild-on-start
