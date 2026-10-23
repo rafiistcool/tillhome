@@ -39,6 +39,7 @@ export function validateConfig(data: unknown): SiteConfig {
       title: link.title,
       url: link.url,
       description: optionalString(link.description),
+      app: optionalString(link.app),
       icon: optionalString(link.icon),
       group: optionalString(link.group),
       tags: tags as string[] | undefined,
@@ -54,6 +55,7 @@ export function validateConfig(data: unknown): SiteConfig {
   return {
     site: {
       title: site.title,
+      lang: optionalString(site.lang),
       eyebrow: optionalString(site.eyebrow),
       heading: optionalString(site.heading),
       name: optionalString(site.name),

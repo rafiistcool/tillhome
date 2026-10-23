@@ -3,17 +3,32 @@ import { escapeAttr, escapeHtml } from './escape.ts'
 import { builtinIcon } from './icons.ts'
 import type { SiteConfig, SiteLink } from './types.ts'
 
-const DEFAULT_EYEBROW = 'Welcome to'
-const MAX_STAGGER = 12
-
 /** Brand logos: `icon: brand:jellyfin` → homarr-labs/dashboard-icons SVG. */
-const BRAND_ICON_BASE = 'https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/'
+export const BRAND_ICON_BASE = 'https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/'
 const IMAGE_EXT = /\.(svg|png|webp|jpe?g|gif|avif)(\?.*)?$/i
 
+export interface RenderOptions {
+  /**
+   * Where the page loads a `brand:<slug>` logo from. The Vite plugin points
+   * this at the copies it downloaded at build time; the default is the CDN.
+   */
+  brandSrc?: (slug: string) => string
+}
+
+const cdnBrandSrc = (slug: string) => `${BRAND_ICON_BASE}${slug}.svg`
+
+/** The slug of a `brand:<slug>` icon value, or undefined if it is not one. */
+export function brandSlug(icon: string): string | undefined {
+  if (!icon.startsWith('brand:')) return undefined
+  const slug = icon.slice('brand:'.length).trim().toLowerCase()
+  return /^[a-z0-9][a-z0-9-]*$/.test(slug) ? slug : undefined
+}
+
 /**
- * Characters that can break out of `style="--icon-src:url(...)"`.
- * Quotes, parens, backslashes, semicolons, and whitespace are refused;
- * the card falls back to a monogram instead of painting a mask.
+ * Characters we refuse in an icon image src. The logo is an <img> now, so
+ * attribute escaping alone would be enough, but a src with quotes, parens,
+ * backslashes, semicolons, or whitespace is almost certainly a typo; the
+ * entry falls back to a monogram instead.
  */
 const UNSAFE_ICON_SRC = /["'()\\;\s]/
 
@@ -21,15 +36,52 @@ export function isStyleSafeIconSrc(src: string): boolean {
   return src.length > 0 && !UNSAFE_ICON_SRC.test(src)
 }
 
+/** UI strings for the languages `site.lang` understands; anything else is English. */
+interface Copy {
+  skip: string
+  newTab: string
+  example: string
+  empty: string
+  count: (n: number) => string
+}
+
+const EN_NUMBERS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve']
+const DE_NUMBERS = ['keine', 'ein', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun', 'zehn', 'elf', 'zwölf']
+
+const COPY: Record<'en' | 'de', Copy> = {
+  en: {
+    skip: 'Skip to links',
+    newTab: ' (opens in a new tab)',
+    example: 'example',
+    empty: 'No links yet. Add entries under <code>links</code> in <code>config.yaml</code>.',
+    count: (n) => `${EN_NUMBERS[n] ?? n} ${n === 1 ? 'link' : 'links'}`,
+  },
+  de: {
+    skip: 'Zu den Links',
+    newTab: ' (öffnet in neuem Tab)',
+    example: 'Beispiel',
+    empty: 'Noch keine Links. Einträge unter <code>links</code> in <code>config.yaml</code> anlegen.',
+    count: (n) => `${DE_NUMBERS[n] ?? n} ${n === 1 ? 'Dienst' : 'Dienste'}`,
+  },
+}
+
+export function siteLang(config: SiteConfig): string {
+  return config.site.lang?.trim() || 'en'
+}
+
+function copyFor(config: SiteConfig): Copy {
+  return siteLang(config).toLowerCase().startsWith('de') ? COPY.de : COPY.en
+}
+
 /**
  * If `icon` refers to an image, return its src. Accepts `brand:<slug>`,
  * absolute http(s) URLs, root-/dot-relative paths, and bare filenames
  * with an image extension.
  */
-function iconImageSrc(icon: string): string | undefined {
+function iconImageSrc(icon: string, brandSrc: (slug: string) => string): string | undefined {
   if (icon.startsWith('brand:')) {
-    const slug = icon.slice('brand:'.length).trim().toLowerCase()
-    return /^[a-z0-9][a-z0-9-]*$/.test(slug) ? `${BRAND_ICON_BASE}${slug}.svg` : undefined
+    const slug = brandSlug(icon)
+    return slug ? brandSrc(slug) : undefined
   }
   if (/^https?:\/\//i.test(icon) || icon.startsWith('/') || icon.startsWith('./')) return icon
   if (IMAGE_EXT.test(icon)) return icon
@@ -38,141 +90,127 @@ function iconImageSrc(icon: string): string | undefined {
 
 function monogramMarkup(title: string): string {
   const monogram = [...title.trim()][0]?.toUpperCase() ?? '·'
-  return `<span class="card-icon" aria-hidden="true"><span class="card-icon-glyph card-icon-monogram">${escapeHtml(monogram)}</span></span>`
+  return `<span class="entry-icon" aria-hidden="true"><span class="entry-icon-glyph">${escapeHtml(monogram)}</span></span>`
 }
 
 /**
- * Card icon, in order of preference:
- *  1. image (`brand:` slug, URL, or path) as a CSS mask (monochrome)
+ * Entry icon, in order of preference:
+ *  1. image (`brand:` slug, URL, or path), sepia at rest, full colour on hover
  *  2. built-in line icon by name (see src/icons.ts)
  *  3. short literal text (e.g. a letter), otherwise
  *  4. monogram from the first letter of the title
  */
-function iconMarkup(icon: string | undefined, title: string): string {
+function iconMarkup(icon: string | undefined, title: string, brandSrc: (slug: string) => string): string {
   const value = icon?.trim()
   if (value) {
-    const src = iconImageSrc(value)
+    const src = iconImageSrc(value, brandSrc)
     if (src) {
       if (!isStyleSafeIconSrc(src)) return monogramMarkup(title)
-      return `<span class="card-icon" aria-hidden="true"><span class="card-icon-mask" style="--icon-src:url(${escapeAttr(src)})"></span></span>`
+      return `<span class="entry-icon" aria-hidden="true"><img class="entry-icon-img" src="${escapeAttr(src)}" alt="" width="34" height="34" loading="lazy" decoding="async"></span>`
     }
     const svg = builtinIcon(value)
-    if (svg) return `<span class="card-icon" aria-hidden="true">${svg}</span>`
+    if (svg) return `<span class="entry-icon" aria-hidden="true">${svg}</span>`
     if ([...value].length <= 2) {
-      return `<span class="card-icon" aria-hidden="true"><span class="card-icon-glyph">${escapeHtml(value)}</span></span>`
+      return `<span class="entry-icon" aria-hidden="true"><span class="entry-icon-glyph">${escapeHtml(value)}</span></span>`
     }
   }
   return monogramMarkup(title)
 }
 
-function tagsMarkup(link: SiteLink): string {
-  const pills: string[] = []
-  if (link.example) {
-    pills.push('<span class="pill pill-example">example</span>')
-  }
-  for (const tag of link.tags ?? []) {
-    pills.push(`<span class="pill">${escapeHtml(tag)}</span>`)
-  }
-  if (!pills.length) return ''
-  return `<span class="card-pills">${pills.join('')}</span>`
+function metaMarkup(link: SiteLink, copy: Copy): string {
+  const parts: string[] = []
+  if (link.app) parts.push(`<span class="entry-app">${escapeHtml(link.app)}</span>`)
+  parts.push(`<span class="entry-host">${escapeHtml(hostnameOf(link.url))}</span>`)
+  const example = link.example ? ` <span class="entry-example">${escapeHtml(copy.example)}</span>` : ''
+  return `<span class="entry-meta">${parts.join(' · ')}${example}</span>`
 }
 
 function arrowMarkup(): string {
-  return `
-      <span class="card-arrow" aria-hidden="true">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 10h11M11 5.5 15.5 10 11 14.5"/>
-        </svg>
-      </span>`
+  return `<svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>`
 }
 
-function groupGlyph(): string {
-  return `
-      <span class="section-glyph" aria-hidden="true">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 2.5v3.2M10 14.3v3.2M2.5 10h3.2M14.3 10h3.2"/>
-          <path d="M10 6.2 13.8 10 10 13.8 6.2 10Z"/>
-        </svg>
-      </span>`
-}
-
-function cardMarkup(link: SiteLink, index: number): string {
+function entryMarkup(link: SiteLink, copy: Copy, brandSrc: (slug: string) => string): string {
   const external = isAbsoluteHttpUrl(link.url)
   const target = external ? ' target="_blank" rel="noopener noreferrer"' : ''
-  const hint = external ? '<span class="sr-only"> (opens in a new tab)</span>' : ''
+  const hint = external ? `<span class="sr-only">${escapeHtml(copy.newTab)}</span>` : ''
   const desc = link.description
-    ? `<span class="card-desc">${escapeHtml(link.description)}</span>`
+    ? `<span class="entry-desc">${escapeHtml(link.description)}</span>`
     : ''
-  const classes = link.example ? 'card card-example' : 'card'
-  const stagger = Math.min(index, MAX_STAGGER)
 
   return `
-    <li class="grid-item">
-      <a class="${classes}" href="${escapeAttr(link.url)}"${target} style="--i:${stagger}">
-        ${iconMarkup(link.icon, link.title)}
-        <span class="card-body">
-          <span class="card-title">${escapeHtml(link.title)}${hint}</span>
-          ${desc}
-          <span class="card-host">${escapeHtml(hostnameOf(link.url))}</span>
-          ${tagsMarkup(link)}
-        </span>
-        ${arrowMarkup()}
-      </a>
-    </li>`
+        <li class="entry-item">
+          <a class="entry" href="${escapeAttr(link.url)}"${target}>
+            ${iconMarkup(link.icon, link.title, brandSrc)}
+            <span class="entry-body">
+              <span class="entry-title">${escapeHtml(link.title)}${hint}</span>
+              ${desc}
+              ${metaMarkup(link, copy)}
+            </span>
+            ${arrowMarkup()}
+          </a>
+        </li>`
 }
 
-export function renderPortal(config: SiteConfig): string {
+export function renderPortal(config: SiteConfig, options: RenderOptions = {}): string {
   const { site } = config
+  const copy = copyFor(config)
+  const brandSrc = options.brandSrc ?? cdnBrandSrc
   const groups = groupLinks(config)
   const heading = site.heading || site.title
-  const eyebrow = site.eyebrow ?? DEFAULT_EYEBROW
 
-  let cardIndex = 0
   const sections = groups
     .map((group) => {
       const id = `group-${slug(group.name)}`
-      const cards = group.links.map((link) => cardMarkup(link, cardIndex++)).join('')
-      const count = group.links.length
+      const entries = group.links.map((link) => entryMarkup(link, copy, brandSrc)).join('')
       return `
-        <section class="section" aria-labelledby="${id}">
-          <div class="section-head">
-            ${groupGlyph()}
-            <h2 class="section-title" id="${id}">${escapeHtml(group.name)}</h2>
-            <span class="section-rule" aria-hidden="true"></span>
-            <span class="section-count">${count} ${count === 1 ? 'link' : 'links'}</span>
-          </div>
-          <ul class="grid">${cards}</ul>
-        </section>`
+      <section class="section" aria-labelledby="${id}">
+        <div class="section-head">
+          <h2 class="section-title" id="${id}">${escapeHtml(group.name)}</h2>
+          <span class="section-count">${escapeHtml(copy.count(group.links.length))}</span>
+        </div>
+        <ul class="entries">${entries}
+        </ul>
+      </section>`
     })
     .join('')
 
-  const empty =
-    config.links.length === 0
-      ? `<p class="empty">No links yet. Add entries under <code>links</code> in <code>config.yaml</code>.</p>`
-      : ''
+  const empty = config.links.length === 0 ? `<p class="empty">${copy.empty}</p>` : ''
 
-  const footer =
-    site.footer || site.name
-      ? `
-    <footer class="foot">
-      ${site.footer ? `<p class="foot-text">${escapeHtml(site.footer)}</p>` : ''}
-      ${site.name ? `<p class="foot-name">${escapeHtml(site.name)}</p>` : ''}
-    </footer>`
-      : ''
+  const footer = `
+      <footer class="foot">
+        <span class="fleuron" aria-hidden="true">❦</span>
+        ${site.footer ? `<p class="foot-text">${escapeHtml(site.footer)}</p>` : ''}
+        ${site.name ? `<p class="foot-name">${escapeHtml(site.name)}</p>` : ''}
+      </footer>`
 
   return `
-    <a class="skip-link" href="#directory">Skip to links</a>
-    <header class="hero">
-      ${eyebrow ? `<p class="eyebrow">${escapeHtml(eyebrow)}</p>` : ''}
-      <h1 class="hero-title">${escapeHtml(heading)}</h1>
-      ${site.tagline ? `<p class="tagline">${escapeHtml(site.tagline)}</p>` : ''}
-      ${site.description ? `<p class="lede">${escapeHtml(site.description)}</p>` : ''}
-    </header>
-    <main id="directory" class="directory">
-      ${sections}
-      ${empty}
-    </main>
-    ${footer}`
+    <a class="skip-link" href="#directory">${escapeHtml(copy.skip)}</a>
+    <div class="frame">
+      <div class="frame-inner">
+        <span class="corner corner-tl" aria-hidden="true"></span>
+        <span class="corner corner-tr" aria-hidden="true"></span>
+        <span class="corner corner-bl" aria-hidden="true"></span>
+        <span class="corner corner-br" aria-hidden="true"></span>
+
+        <div class="runhead">
+          <span class="runhead-site">${escapeHtml(heading)}</span>
+          ${site.eyebrow ? `<span class="runhead-label">${escapeHtml(site.eyebrow)}</span>` : ''}
+        </div>
+
+        <header class="hero">
+          <p class="fleuron" aria-hidden="true">❦</p>
+          <h1 class="hero-title">${escapeHtml(heading)}</h1>
+          ${site.tagline ? `<p class="tagline">${escapeHtml(site.tagline)}</p>` : ''}
+          <div class="hero-rule" aria-hidden="true"><span></span><span class="diamond"></span><span></span></div>
+        </header>
+
+        <main id="directory" class="directory">
+          ${sections}
+          ${empty}
+        </main>
+        ${footer}
+      </div>
+    </div>`
 }
 
 export function renderHead(config: SiteConfig): { title: string; description: string } {

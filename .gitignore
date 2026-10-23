@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local preview config (copy of the deployed one)
+config.local.yaml

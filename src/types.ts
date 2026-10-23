@@ -1,5 +1,6 @@
 export interface SiteMeta {
   title: string
+  lang?: string
   eyebrow?: string
   heading?: string
   name?: string
@@ -12,6 +13,7 @@ export interface SiteLink {
   title: string
   url: string
   description?: string
+  app?: string
   icon?: string
   group?: string
   tags?: string[]

@@ -1,55 +1,33 @@
 /* ------------------------------------------------------------------
-   Palette — sampled from public/background.jpg (1024×640 night forest).
-   Each token names the region it was averaged from. Accents stay at
-   image values; nothing is pumped brighter than the illustration.
+   Palette — a plain sand page with a bronze double frame. Ink is a warm
+   near-black, rust is the one accent (hover, ornaments), bronze is only
+   used for the frame and its diamonds.
    ------------------------------------------------------------------ */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Foreground bank / near-black shore, y≈0.95 (#0e102c). Cards sit on this. */
-  --bg: #0e102c;
-  /* Darkest sampled pixel — night undergrowth under the right trunk. */
-  --bg-deep: #040025;
+  --paper: #ebe0c8;
 
-  /* Lightest sampled haze (#e7e0ff) — a star / mist pixel in the sky. */
-  --ink: #e7e0ff;
-  /* Stepped from ink toward the horizon violet so body copy is quieter. */
-  --ink-soft: #c8c0ee;
-  /* Desaturated mid-forest (y≈0.45, #614dcd) for secondary labels. */
-  --muted: #8b82c4;
-  --muted-strong: #a8a0d6;
+  --ink: #2e2418;
+  --ink-soft: #3e3224;
+  --ink-quiet: #4d3f2e;
+  /* 4.9:1 on --paper; the lightest text colour on the page. */
+  --muted: #6b5b45;
 
-  /* Ridge glow, y≈0.25 (#8569ef). Horizon peak is #956bf7 — not exceeded. */
-  --violet: #8569ef;
-  --violet-soft: #956bf7;
+  --rust: #8e3b12;
+  --bronze: #a6834a;
 
-  /* Lake body, not the specular flash. Mid-lake y≈0.75 (#3ec0f6). */
-  --lake: #3ec0f6;
-  /* Deeper lake, y≈0.80 (#2b9cd9). */
-  --lake-deep: #2b9cd9;
-  /* Lake edge against the bank, y≈0.85 (#1b65af). */
-  --lake-edge: #1b65af;
+  --rule: rgb(46 36 24 / 50%);
+  --rule-soft: rgb(46 36 24 / 18%);
+  --rule-head: rgb(46 36 24 / 30%);
+  --hover: rgb(46 36 24 / 5%);
 
-  /* Near-tree silhouettes, left stand y≈0.42 (#1c1f4d). */
-  --panel: #16183f;
-  --panel-strong: #1c1f4d;
-
-  /* Mid-forest #614dcd and ridge glow at low alpha — no neon rims. */
-  --line: rgb(97 77 205 / 28%);
-  --line-strong: rgb(133 105 239 / 40%);
-
-  --shadow-card: 0 12px 28px -16px rgb(4 0 37 / 70%);
-  --shadow-card-hover: 0 16px 32px -14px rgb(4 0 37 / 80%);
-
-  --focus: var(--lake);
-  --radius: 0;
-  --radius-sm: 0;
+  --focus: var(--rust);
 
   --font:
-    "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
-  --space: clamp(1.1rem, 3vw, 2rem);
+    "EB Garamond Variable", "EB Garamond", Garamond, "Iowan Old Style", "Palatino Linotype",
+    Georgia, serif;
+  --space: clamp(0.75rem, 3vw, 2.5rem);
 
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -67,93 +45,24 @@ body {
 }
 
 html {
-  background: var(--bg);
+  background: var(--paper);
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  position: relative;
   min-height: 100dvh;
+  padding: var(--space);
   font-family: var(--font);
-  font-optical-sizing: auto;
+  font-variant-numeric: oldstyle-nums;
   color: var(--ink);
-  background: var(--bg);
-  line-height: 1.5;
-  letter-spacing: -0.011em;
-  font-feature-settings: "cv11", "ss01";
+  background: var(--paper);
+  line-height: 1.4;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgb(133 105 239 / 40%);
-  color: #fff;
-}
-
-/* ------------------------------------------------------------------
-   Header band: the illustration frames the hero, then dissolves into
-   the solid page surface so cards always sit on --bg.
-   ------------------------------------------------------------------ */
-.header-band {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: min(38rem, 70vh);
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background: var(--bg);
-}
-
-.header-band-image {
-  position: absolute;
-  inset: 0;
-  background: url("/background.jpg") center 28% / cover no-repeat;
-  transform-origin: 50% 28%;
-  animation: band-breathe 56s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-/* Wash uses the bank colour so the join to the page is a single hue. */
-.header-band-fade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgb(14 16 44 / 16%) 0%,
-    rgb(14 16 44 / 6%) 26%,
-    rgb(14 16 44 / 38%) 58%,
-    var(--bg) 86%,
-    var(--bg) 100%
-  );
-}
-
-@keyframes band-breathe {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.045);
-  }
-}
-
-/* ------------------------------------------------------------------
-   Layout
-   ------------------------------------------------------------------ */
-#app {
-  position: relative;
-  z-index: 1;
-  isolation: isolate;
-  width: calc(100% - var(--space) * 2);
-  margin: 0 auto;
-  padding: clamp(2.4rem, 7vw, 5.5rem) 0 2.5rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-}
-
-.directory {
-  flex: 1;
+  background: rgb(142 59 18 / 22%);
+  color: var(--ink);
 }
 
 .sr-only {
@@ -170,16 +79,15 @@ body {
 
 .skip-link {
   position: absolute;
-  left: 0;
-  top: 0.75rem;
+  left: 1rem;
+  top: 1rem;
   z-index: 10;
-  padding: 0.5rem 0.85rem;
-  background: var(--panel-strong);
+  padding: 0.5rem 0.9rem;
+  background: var(--paper);
   color: var(--ink);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
+  border: 1px solid var(--rust);
   text-decoration: none;
-  transform: translateY(-200%);
+  transform: translateY(-300%);
 }
 
 .skip-link:focus {
@@ -187,344 +95,320 @@ body {
 }
 
 a:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-  border-radius: var(--radius);
+  outline: 1px solid var(--focus);
+  outline-offset: -1px;
 }
 
 /* ------------------------------------------------------------------
-   Hero
+   Frame: hairline outside, double rule inside, a diamond on each corner
+   ------------------------------------------------------------------ */
+.frame {
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: clamp(0.5rem, 1.6vw, 1rem);
+  border: 1px solid var(--bronze);
+}
+
+.frame-inner {
+  position: relative;
+  min-height: calc(100dvh - var(--space) * 2 - clamp(0.5rem, 1.6vw, 1rem) * 2 - 2px);
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem clamp(1rem, 5vw, 4.5rem) 3rem;
+  border: 3px double var(--bronze);
+}
+
+.corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--bronze);
+  transform: rotate(45deg);
+}
+
+.corner-tl {
+  top: -10px;
+  left: -10px;
+}
+.corner-tr {
+  top: -10px;
+  right: -10px;
+}
+.corner-bl {
+  bottom: -10px;
+  left: -10px;
+}
+.corner-br {
+  bottom: -10px;
+  right: -10px;
+}
+
+/* Running head, like the top line of a printed page. */
+.runhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--rule-head);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.runhead-site {
+  font-variant-caps: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.14em;
+}
+
+.runhead-label {
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------------
+   Title block
    ------------------------------------------------------------------ */
 .hero {
-  position: relative;
-  max-width: 46rem;
-  margin-bottom: clamp(2.4rem, 6vw, 4rem);
+  padding: clamp(3rem, 8vw, 5rem) 0 clamp(2.75rem, 7vw, 4.5rem);
+  text-align: center;
 }
 
-.hero > * {
-  animation: rise 720ms var(--ease-out) both;
-}
-
-.hero > :nth-child(1) {
-  animation-delay: 40ms;
-}
-.hero > :nth-child(2) {
-  animation-delay: 120ms;
-}
-.hero > :nth-child(3) {
-  animation-delay: 220ms;
-}
-.hero > :nth-child(4) {
-  animation-delay: 300ms;
-}
-
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin: 0 0 0.9rem;
-  color: var(--lake);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  content: "";
-  width: 1.6rem;
-  height: 1px;
-  background: linear-gradient(90deg, var(--lake), transparent);
+.fleuron {
+  margin: 0 0 1.4rem;
+  color: var(--rust);
+  font-size: 1.9rem;
+  line-height: 1;
 }
 
 .hero-title {
   margin: 0;
-  /* 5vw + 0.8rem keeps "home.example.com" inside the gutter on a 320px phone. */
-  font-size: clamp(1.5rem, 5vw + 0.8rem, 4rem);
-  font-weight: 750;
-  letter-spacing: -0.045em;
-  line-height: 1.05;
-  overflow-wrap: break-word;
-  color: var(--ink);
+  font-size: clamp(3rem, 9vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  overflow-wrap: anywhere;
 }
 
 .tagline {
-  margin: 0.9rem 0 0;
-  color: var(--ink-soft);
-  font-size: clamp(1.05rem, 2.2vw, 1.45rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  margin: 1.1rem 0 0;
+  color: var(--ink-quiet);
+  font-size: clamp(1.25rem, 2.6vw, 1.65rem);
+  font-style: italic;
 }
 
-.lede {
-  margin: 0.9rem 0 0;
-  max-width: 38rem;
-  color: var(--muted-strong);
-  font-size: 1.02rem;
-  line-height: 1.6;
+.hero-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}
+
+.hero-rule span {
+  width: 4.5rem;
+  border-top: 1px solid var(--bronze);
+}
+
+.hero-rule .diamond {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  background: var(--bronze);
+  transform: rotate(45deg);
 }
 
 /* ------------------------------------------------------------------
-   Sections
+   Sections and entries
    ------------------------------------------------------------------ */
+.directory {
+  flex: 1;
+}
+
 .section {
-  margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+  margin-bottom: clamp(2.75rem, 6vw, 4rem);
 }
 
 .section-head {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.95rem;
-}
-
-.section-glyph {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 20px;
-  height: 20px;
-  color: var(--ink);
-}
-
-.section-glyph svg {
-  width: 20px;
-  height: 20px;
+  align-items: baseline;
+  gap: 1.25rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--rule);
 }
 
 .section-title {
+  flex: 1;
   margin: 0;
-  color: var(--ink);
-  font-size: 0.82rem;
-  font-weight: 650;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.section-rule {
-  flex: 1 1 auto;
-  height: 1px;
-  background: linear-gradient(90deg, rgb(97 77 205 / 45%), rgb(97 77 205 / 8%) 70%, transparent);
+  font-size: clamp(2.1rem, 4.4vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1;
 }
 
 .section-count {
-  flex: 0 0 auto;
   color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
+  font-size: 1.06rem;
+  font-style: italic;
+  white-space: nowrap;
 }
 
-/* ------------------------------------------------------------------
-   Card grid
-   ------------------------------------------------------------------ */
-/* auto-fill: unused tracks stay empty, so two cards in a group keep
-   the same width as a full row of cards. */
-.grid {
+/* auto-fill: a short group keeps the same column width as a full one. */
+.entries {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  column-gap: 3rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.grid-item {
-  display: flex;
+.entry-item {
   min-width: 0;
+  border-bottom: 1px solid var(--rule-soft);
 }
 
-.card {
-  --i: 0;
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  flex: 1;
-  min-width: 0;
-  padding: 1.05rem 1.05rem 1.05rem 1.05rem;
+.entry {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 1.1rem;
+  column-gap: 1.1rem;
+  align-items: start;
+  margin: 0 -0.75rem;
+  padding: 1.35rem 0.75rem;
   color: inherit;
   text-decoration: none;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
-  transition:
-    transform 260ms var(--ease-out),
-    border-color 260ms var(--ease-out),
-    box-shadow 260ms var(--ease-out),
-    background-color 260ms var(--ease-out);
-  animation: rise 640ms var(--ease-out) both;
-  animation-delay: calc(260ms + var(--i) * 55ms);
+  transition: background-color 150ms var(--ease-out);
 }
 
-.card:hover,
-.card:focus-visible {
-  transform: translateY(-2px);
-  border-color: var(--line-strong);
-  background: var(--panel-strong);
-  box-shadow: var(--shadow-card-hover);
+.entry:hover,
+.entry:focus-visible {
+  background: var(--hover);
 }
 
-.card:active {
-  transform: translateY(-1px);
-  transition-duration: 80ms;
-}
-
-/* 20px monochrome glyph in the card text colour. */
-.card-icon {
-  flex: 0 0 auto;
+.entry-icon {
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
-  margin-top: 0.2rem;
-  color: var(--ink);
-  font-size: 20px;
+  width: 2.15rem;
+  height: 2.15rem;
+  margin-top: 0.25rem;
+  color: var(--ink-soft);
+}
+
+/* Logos sit in sepia so they read as part of the page, and show their own
+   colours on hover. */
+.entry-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: grayscale(1) sepia(0.6) contrast(0.95);
+  opacity: 0.85;
+  transition:
+    filter 200ms var(--ease-out),
+    opacity 200ms var(--ease-out);
+}
+
+.entry-icon-svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  transition: color 150ms var(--ease-out);
+}
+
+.entry-icon-glyph {
+  font-size: 1.6rem;
+  font-weight: 500;
   line-height: 1;
 }
 
-.card-icon-glyph,
-.card-icon-monogram {
-  display: block;
-  font-size: 0.95rem;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-  color: var(--ink);
+.entry:hover .entry-icon-img,
+.entry:focus-visible .entry-icon-img {
+  filter: none;
+  opacity: 1;
 }
 
-.card-icon-svg {
-  width: 20px;
-  height: 20px;
-  color: var(--ink);
+.entry:hover .entry-icon,
+.entry:focus-visible .entry-icon {
+  color: var(--rust);
 }
 
-/* Brand / custom images: CSS mask, not a full-colour <img>. */
-.card-icon-mask {
-  display: block;
-  width: 20px;
-  height: 20px;
-  background-color: currentColor;
-  -webkit-mask: var(--icon-src) center / contain no-repeat;
-  mask: var(--icon-src) center / contain no-repeat;
-}
-
-.card-body {
+.entry-body {
   display: flex;
-  min-width: 0;
-  flex: 1;
   flex-direction: column;
   gap: 0.25rem;
-  padding-top: 0;
+  min-width: 0;
 }
 
-.card-title {
-  color: var(--ink);
-  font-size: 1.02rem;
-  font-weight: 620;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
-}
-
-.card-desc {
-  color: var(--muted-strong);
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-.card-host {
-  margin-top: 0.15rem;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  letter-spacing: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: color 260ms var(--ease-out);
-}
-
-.card:hover .card-host,
-.card:focus-visible .card-host {
-  color: var(--lake);
-}
-
-.card-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
-}
-
-.pill {
-  padding: 0.12rem 0.55rem;
-  color: var(--muted-strong);
-  background: rgb(97 77 205 / 12%);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  font-size: 0.7rem;
+.entry-title {
+  font-size: 1.75rem;
   font-weight: 500;
-  letter-spacing: 0.03em;
+  line-height: 1.1;
+  transition: color 150ms var(--ease-out);
 }
 
-.pill-example {
-  color: var(--violet-soft);
-  background: rgb(149 107 247 / 12%);
-  border-color: rgb(149 107 247 / 32%);
+.entry:hover .entry-title,
+.entry:focus-visible .entry-title {
+  color: var(--rust);
 }
 
-.card-arrow {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  align-self: center;
-  width: 2rem;
-  height: 2rem;
+.entry-desc {
+  color: var(--ink-soft);
+  font-size: 1.19rem;
+  line-height: 1.35;
+}
+
+.entry-meta {
+  margin-top: 0.25rem;
   color: var(--muted);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  font-size: 0.94rem;
+  overflow-wrap: anywhere;
+}
+
+.entry-app {
+  font-variant-caps: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.1em;
+}
+
+.entry-host {
+  font-style: italic;
+}
+
+.entry-example {
+  color: var(--rust);
+  font-variant-caps: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.1em;
+}
+
+.entry-arrow {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.6rem;
+  color: var(--rust);
+  opacity: 0;
+  transform: translateX(-4px);
   transition:
-    transform 260ms var(--ease-out),
-    color 260ms var(--ease-out),
-    border-color 260ms var(--ease-out),
-    background-color 260ms var(--ease-out);
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
 }
 
-.card-arrow svg {
-  width: 1rem;
-  height: 1rem;
-  transition: transform 260ms var(--ease-out);
-}
-
-.card:hover .card-arrow,
-.card:focus-visible .card-arrow {
-  color: var(--ink);
-  background: rgb(97 77 205 / 22%);
-  border-color: var(--line-strong);
-  transform: translateX(3px);
-}
-
-.card:hover .card-arrow svg,
-.card:focus-visible .card-arrow svg {
-  transform: translateX(1px);
+.entry:hover .entry-arrow,
+.entry:focus-visible .entry-arrow {
+  opacity: 1;
+  transform: none;
 }
 
 .empty {
-  margin: 0.4rem 0 0;
-  padding: 1.2rem 1.3rem;
-  color: var(--muted-strong);
-  background: var(--panel);
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--radius);
+  margin: 0;
+  color: var(--ink-quiet);
+  font-size: 1.2rem;
+  font-style: italic;
+  text-align: center;
 }
 
 .empty code {
-  font-family: var(--mono);
-  font-size: 0.88em;
-  color: var(--lake);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.8em;
+  font-style: normal;
+  color: var(--rust);
 }
 
 /* ------------------------------------------------------------------
@@ -532,69 +416,58 @@ a:focus-visible {
    ------------------------------------------------------------------ */
 .foot {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 1.5rem;
-  margin-top: clamp(2rem, 5vw, 3.5rem);
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--line);
+  gap: 0.6rem;
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
   color: var(--muted);
-  font-size: 0.86rem;
+  text-align: center;
+}
+
+.foot .fleuron {
+  margin: 0;
+  font-size: 1.4rem;
 }
 
 .foot p {
   margin: 0;
 }
 
-.foot-name {
-  color: var(--muted-strong);
-  font-weight: 500;
+.foot-text {
+  font-size: 0.95rem;
+  font-variant-caps: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.14em;
 }
 
-/* ------------------------------------------------------------------
-   Motion
-   ------------------------------------------------------------------ */
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.foot-name {
+  font-style: italic;
 }
 
 /* ------------------------------------------------------------------
    Responsive
    ------------------------------------------------------------------ */
 @media (max-width: 639px) {
-  .hero-title {
-    font-size: clamp(1.45rem, 7.2vw, 2.05rem);
+  .frame-inner {
+    padding-top: 1.75rem;
   }
 
-  .grid {
-    gap: 0.75rem;
+  .entry {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    column-gap: 0.9rem;
+    padding: 1.1rem 0.75rem;
   }
 
-  .card {
-    gap: 0.75rem;
-    padding: 0.95rem;
+  .entry-title {
+    font-size: 1.55rem;
   }
 
-  .card-arrow {
-    width: 1.75rem;
-    height: 1.75rem;
+  .entry-desc {
+    font-size: 1.1rem;
   }
 
-  .section-count {
+  .entry-arrow {
     display: none;
-  }
-
-  .foot {
-    flex-direction: column;
-    align-items: flex-start;
   }
 }
 
@@ -602,17 +475,6 @@ a:focus-visible {
   *,
   *::before,
   *::after {
-    scroll-behavior: auto !important;
     transition: none !important;
-    animation: none !important;
-  }
-
-  .header-band-image {
-    will-change: auto;
-  }
-
-  .card:hover,
-  .card:focus-visible {
-    transform: none;
   }
 }

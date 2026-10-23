@@ -51,23 +51,24 @@ Required fields are `title` and `url`. Everything else is optional:
 
 | Field | Purpose |
 | --- | --- |
-| `description` | Short line under the title |
-| `icon` | Card icon — see [Icons](#icons). Omit for a monogram of the title |
+| `description` | What the service is for, in plain words. Shown under the title |
+| `app` | The software behind it (`Jellyfin`, `Nextcloud`, …). Shown in small caps next to the hostname |
+| `icon` | Entry icon — see [Icons](#icons). Omit for a monogram of the title |
 | `group` | Section heading. New group names create new sections |
-| `tags` | Small pills under the description |
-| `example` | `true` shows an **example** badge so placeholders are obvious |
+| `tags` | Not shown on the page; free-form labels for your own bookkeeping |
+| `example` | `true` adds an **example** mark so placeholders are obvious |
 
 ### Icons
 
 `icon` accepts three kinds of value:
 
-- **Built-in line icon** (bundled, no network): `activity`, `bar-chart`, `book-open`, `box`, `calendar`, `camera`, `cloud`, `code`, `cpu`, `database`, `download`, `file-text`, `film`, `folder`, `gamepad`, `git-branch`, `globe`, `hard-drive`, `headphones`, `heart`, `home`, `image`, `key`, `layout-dashboard`, `link`, `lock`, `mail`, `message-circle`, `music`, `newspaper`, `play`, `rss`, `search`, `server`, `settings`, `shield`, `terminal`, `tv`, `users`, `wifi`, `wrench`, `zap`. Friendly aliases work too (`books`, `photos`, `notes`, `git`, `status`, `dashboard`, `movies`, `streaming`, `storage`, `chat`, …); see `src/icons.ts`.
-- **Service logo**: `brand:<slug>` loads the matching SVG from the community [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) set via jsDelivr, e.g. `brand:jellyfin`, `brand:nextcloud`, `brand:immich`, `brand:sonarr`. The slug is the file name in that repo. Logos are painted as a CSS mask in the card text colour (not as a full-colour image). This is the one thing on the page that makes an external request; skip it if you want the site fully self-contained.
-- **Your own image**: a URL or a path such as `/icons/mine.svg` (drop the file in `public/icons/`). Bare filenames ending in `.svg`/`.png`/`.webp`/`.jpg` work as well. Same monochrome mask treatment.
+- **Built-in line icon** (bundled, no network): `activity`, `bar-chart`, `book-open`, `box`, `calendar`, `camera`, `cloud`, `code`, `cpu`, `database`, `download`, `file-text`, `film`, `folder`, `gamepad`, `git-branch`, `globe`, `hard-drive`, `headphones`, `heart`, `hexagon`, `home`, `image`, `key`, `layout-dashboard`, `link`, `lock`, `mail`, `message-circle`, `music`, `newspaper`, `play`, `rss`, `search`, `server`, `settings`, `shield`, `terminal`, `tv`, `users`, `wifi`, `wrench`, `zap`. Friendly aliases work too (`books`, `photos`, `notes`, `git`, `status`, `dashboard`, `movies`, `streaming`, `storage`, `chat`, …); see `src/icons.ts`.
+- **Service logo**: `brand:<slug>` uses the matching SVG from the community [dashboard-icons](https://github.com/homarr-labs/dashboard-icons) set, e.g. `brand:jellyfin`, `brand:nextcloud`, `brand:immich`, `brand:sonarr`. The slug is the file name in that repo. Logos are shown in sepia to match the page and in their own colours on hover. The build downloads each logo once from jsDelivr and serves it from `/brand/<slug>.svg`, so visitors' browsers never contact the CDN. Downloads are cached in `node_modules/.cache/tillhome-brand/` (delete it to refetch). If a logo cannot be downloaded (offline build, unknown slug) the build logs a warning and that entry points at the CDN instead.
+- **Your own image**: a URL or a path such as `/icons/mine.svg` (drop the file in `public/icons/`). Bare filenames ending in `.svg`/`.png`/`.webp`/`.jpg` work as well. Same sepia treatment.
 
 Anything else that is one or two characters long (a letter, a symbol) is shown literally.
 
-Image `src` values that contain quotes, parentheses, backslashes, semicolons, or whitespace are rejected and the card shows a monogram instead. That keeps the mask `style` attribute from being a CSS injection surface.
+Image `src` values that contain quotes, parentheses, backslashes, semicolons, or whitespace are rejected and the entry shows a monogram instead.
 
 Optional `groups` at the top of the file sets section order. Groups that are not listed still appear after the named ones.
 
@@ -82,12 +83,13 @@ The `site` block in `config.yaml` sets the page title, hero copy, and footer. No
 | Field | Purpose |
 | --- | --- |
 | `title` | Browser tab title (required) |
-| `eyebrow` | Small label above the heading. Defaults to `Welcome to`; set to `""` to hide |
-| `heading` | Large hero heading. Falls back to `title` |
-| `tagline` | One-liner under the heading |
-| `description` | Longer sentence under the tagline; also the meta description |
-| `name` | Shown on the right side of the footer |
-| `footer` | Text on the left side of the footer |
+| `lang` | Page language (`en` default, `de`). Also switches the built-in labels such as "three links" / "drei Dienste" |
+| `eyebrow` | Small italic label at the top right of the page, e.g. `Directory`. Omit to hide |
+| `heading` | Large title, also repeated in small caps at the top left. Falls back to `title` |
+| `tagline` | Italic line under the title |
+| `description` | Meta description for search engines; not shown on the page |
+| `name` | Italic line under the footer text |
+| `footer` | Small-caps line at the bottom of the page |
 
 ## Develop
 
@@ -97,6 +99,8 @@ npm run dev
 ```
 
 The app listens on [http://127.0.0.1:47211](http://127.0.0.1:47211). Saving `config.yaml` reloads the page.
+
+To preview a different file (for example a copy of the config your server mounts), point `TILLHOME_CONFIG` at it: `TILLHOME_CONFIG=config.local.yaml npm run dev`. `config.local.yaml` is git-ignored.
 
 ```bash
 npm run check    # typecheck + validate YAML
@@ -124,18 +128,16 @@ Upload `dist/`, or run `npm run build` in CI and publish that folder. This is a 
 
 ## Look
 
-The night-forest illustration is a **header band**: it frames the hero and dissolves into a solid page colour so the cards sit on one predictable surface instead of a full-viewport wallpaper. Colours are sampled from `public/background.jpg` (sky, horizon, forest, lake, foreground bank); each CSS token in `src/style.css` comments which region it came from. Accents stay at those image values — no neon rims brighter than the painting.
+The page is a plain sand-coloured sheet with a bronze double frame and a diamond on each corner, set like a printed directory: a running head at the top, a centred title with a fleuron, and one section per group with a ruled heading. Rust is the only accent and marks the entry under the pointer. All colours are tokens at the top of `src/style.css`.
 
-Icons are a single 20px monochrome treatment in the card text colour. Built-in glyphs are Lucide strokes; brand logos use a CSS mask.
+Logos sit in sepia so they read as part of the page and show their own colours on hover. Built-in glyphs are Lucide strokes in the ink colour.
 
-Type is **Inter Variable**, self-hosted from [`@fontsource-variable/inter`](https://fontsource.org/fonts/inter) and bundled into `dist/assets/` at build time. The browser caches the hashed `.woff2` with the rest of the static files — there is no Google Fonts (or other) runtime request. After `npm ci` / `npm run build`, a hard refresh is enough for the new face to land.
-
-To change the picture, replace `public/background.jpg` (landscape, ~1600px wide is plenty; it is served as-is) and re-tint the variables at the top of `src/style.css` to match.
+Type is **EB Garamond Variable** (roman and italic), self-hosted from [`@fontsource-variable/eb-garamond`](https://fontsource.org/fonts/eb-garamond) and bundled into `dist/assets/` at build time. There is no Google Fonts (or other) runtime request for type.
 
 ## Layout
 
-- Links are grouped by `group` and rendered as cards; each card shows the link's hostname so you don't have to remember subdomains
-- The card grid uses `auto-fill` so a short group keeps the same card width as a full row
+- Links are grouped by `group` and rendered as directory entries: title, what it is for, then app and hostname
+- Entries flow into two columns on wide screens; `auto-fill` keeps a short group at the same column width as a full one
 - Absolute `http://` and `https://` URLs open in a new tab
 - Relative URLs stay in the same tab
 - Keyboard focus styles are visible, and every animation is disabled under `prefers-reduced-motion`
@@ -146,7 +148,6 @@ To change the picture, replace `public/background.jpg` (landscape, ~1600px wide 
 config.yaml                 ← edit this to add a link
 src/                        Render + validation code and the stylesheet
 src/icons.ts                Built-in line icons (Lucide paths) and aliases
-public/background.jpg       Header-band illustration (swap to change the look)
 vite.config.ts              Reads YAML at build time and injects HTML
 dist/                       Generated static site (after build)
 Dockerfile                  Multi-stage: Vite build, nginx + rebuild-on-start

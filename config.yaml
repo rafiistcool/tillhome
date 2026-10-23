@@ -4,12 +4,14 @@
 
 site:
   title: Home
-  eyebrow: Welcome to
+  # lang: de switches the page language and the built-in labels to German.
+  lang: en
+  eyebrow: Directory
   heading: home.example.com
   name: Your name
   tagline: Personal services and shortcuts.
   description: Personal link hub for services on this host.
-  footer: Static link hub. Add a site by editing config.yaml.
+  footer: home.example.com
 
 # Optional. Controls section order. Groups not listed still appear after these.
 groups:
@@ -22,6 +24,8 @@ groups:
 #       see README), `brand:<slug>` for a service logo (brand:jellyfin,
 #       brand:nextcloud, brand:immich), or a path/URL to your own image.
 #       Omit it to get a monogram of the title.
+# description: what the service is for, in plain words.
+# app: the software behind it (Jellyfin, Nextcloud, …), shown next to the host.
 # Set example: true while an entry is a placeholder you still need to replace.
 links:
   - title: Book Club
@@ -43,6 +47,7 @@ links:
   - title: Photos
     url: https://photos.example.com
     description: Family albums and shared galleries.
+    app: Immich
     icon: brand:immich
     group: Services
     tags: [media]
@@ -51,7 +56,7 @@ links:
   - title: Search
     url: https://search.example.com
     description: Search across personal sources.
-    icon: brand:jellyfin
+    icon: search
     group: Services
     tags: [search]
     example: true
@@ -59,7 +64,8 @@ links:
   - title: Git
     url: https://git.example.com
     description: Source repositories hosted on this domain.
-    icon: git-branch
+    app: Forgejo
+    icon: brand:forgejo
     group: Ops
     tags: [dev]
     example: true
