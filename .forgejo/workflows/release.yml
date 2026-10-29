@@ -23,7 +23,8 @@ jobs:
 
   publish:
     name: Build and push image
-    runs-on: ubuntu-latest
+    # Nur der Runner mit dem Label docker-host gibt Jobs den Docker-Socket.
+    runs-on: docker-host
     needs: [check]
     steps:
       - uses: actions/checkout@v4

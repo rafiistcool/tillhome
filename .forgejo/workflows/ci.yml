@@ -23,7 +23,8 @@ jobs:
         run: npm run build
 
   docker:
-    runs-on: ubuntu-latest
+    # Nur der Runner mit dem Label docker-host gibt Jobs den Docker-Socket.
+    runs-on: docker-host
     steps:
       - uses: actions/checkout@v4
       - name: Build image
